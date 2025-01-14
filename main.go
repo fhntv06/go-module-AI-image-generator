@@ -5,6 +5,7 @@ import (
 	db "AI_image_generator/basic/database"
 	env "AI_image_generator/basic/env_handler"
 	"AI_image_generator/basic/fetch"
+	file "AI_image_generator/basic/file"
 	"fmt"
 	_ "github.com/lib/pq"
 	_ "time"
@@ -22,5 +23,9 @@ func main() {
 	db.ConstructorDB()
 	api.Api()
 
-	fmt.Println(fetch.Get("https://www.google.com"))
+	googlePage := fmt.Sprintf("%s", fetch.Get("https://www.google.com"))
+
+	file.CreateDirToPath("google/")
+	f := file.OpenFile("google/index.html")
+	file.WriteString(googlePage, f)
 }
