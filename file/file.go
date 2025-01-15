@@ -36,7 +36,7 @@ func OpenFile(p string) *os.File {
 
 	return f
 }
-func ClosFile(f *os.File) {
+func CloseFile(f *os.File) {
 	err := f.Close()
 
 	if err != nil {
@@ -49,7 +49,7 @@ func WriteString(t string, f *os.File) {
 		log.Fatalf("Cannot write t in file %s: %v", f.Name(), err)
 	}
 
-	ClosFile(f)
+	CloseFile(f)
 }
 
 // Exists returns whether the given file or directory exists
