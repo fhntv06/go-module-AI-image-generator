@@ -1,15 +1,17 @@
 package main
 
 import (
-	api "AI_image_generator/basic/api"
 	db "AI_image_generator/basic/database"
 	env "AI_image_generator/basic/env_handler"
-	"AI_image_generator/basic/fetch"
+	fetch "AI_image_generator/basic/fetch"
 	file "AI_image_generator/basic/file"
+	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
 	_ "time"
 )
+
+var dbLocal *sql.DB
 
 func InitialApp() {
 	fmt.Println("Initial App!")
@@ -20,8 +22,8 @@ func InitialApp() {
 func main() {
 	InitialApp()
 
-	db.ConstructorDB()
-	api.Api()
+	dbLocal := db.ConstructorDB()
+	db.CreateNewTables(dbLocal, "images")
 
 	googlePage := fmt.Sprintf("%s", fetch.Get("https://www.google.com"))
 

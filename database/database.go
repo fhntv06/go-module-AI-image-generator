@@ -8,29 +8,26 @@ import (
 	"time"
 )
 
-type DB *sql.DB
-
-var dbLocal *sql.DB
-
-func ConstructorDB() DB {
+func ConstructorDB() *sql.DB {
 	connectionParamsDB := GetConnectionParamsDB()
 
-	dbLocal, err := sql.Open("postgres", connectionParamsDB)
+	instanceDB, err := sql.Open("postgres", connectionParamsDB)
 	if err != nil {
 		log.Fatal("Error in Open:", err)
 	}
 
 	fmt.Println("Sql open success!")
 
-	if err := dbLocal.Ping(); err != nil {
+	if err := instanceDB.Ping(); err != nil {
 		log.Fatal("Error in Ping:", err)
 	}
 
 	fmt.Println("Ping success!")
 
-	defer dbLocal.Close()
-
-	return dbLocal
+	return instanceDB
+}
+func CloseDB(instanceDB *sql.DB) {
+	defer instanceDB.Close()
 }
 
 func GetConnectionParamsDB() string {
@@ -44,7 +41,7 @@ func GetConnectionParamsDB() string {
 	)
 }
 
-func CreateNewTables(name string) {
+func CreateNewTables(instanceDB *sql.DB, name string) {
 	query := fmt.Sprintf(
 		`CREATE TABLE IF NOT EXISTS %s (
 			id SERIAL PRIMARY KEY,
@@ -56,17 +53,20 @@ func CreateNewTables(name string) {
 		name,
 	)
 
-	if _, err := dbLocal.Exec(query); err != nil {
+	if _, err := instanceDB.Exec(query); err != nil {
+		fmt.Println("Таблица ", name, "не создана.")
 		log.Fatal(err)
 	}
 
 	fmt.Println("Таблица", name, "создана.")
+
+	CloseDB(instanceDB)
 }
 
-func CreateUser(username string, password string, createdAt time.Time) int {
+func CreateUser(instanceDB *sql.DB, username string, password string, createdAt time.Time) int {
 	// Выполнение запроса
 	var newUserID int
-	err := dbLocal.QueryRow(
+	err := instanceDB.QueryRow(
 		`INSERT INTO $1 (username, email, password_hash) VALUES ($2, $3, $4) RETURNING id`,
 		env.GetEnvParam("DATABASE"),
 		username,
@@ -79,18 +79,4 @@ func CreateUser(username string, password string, createdAt time.Time) int {
 	}
 
 	return newUserID
-}
-
-func WorkDB() {
-	// test connect PostgreSQL DB
-	dbLocal = ConstructorDB()
-
-	fmt.Sprintf("dbLocal %v", dbLocal)
-	return
-
-	// sql: database is closed
-	CreateNewTables("users")
-
-	newUserID := CreateUser("johndoe23", "secret", time.Now())
-	fmt.Printf("Новый пользователь с ID %d успешно добавлен.\n", newUserID)
 }
