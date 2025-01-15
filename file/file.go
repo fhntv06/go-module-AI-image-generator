@@ -65,13 +65,7 @@ func WriteString(t string, f *os.File) {
 // Exists returns whether the given file or directory exists
 func Exists(path string) bool {
 	_, err := os.Stat(path)
-	if err == nil {
-		return true
-	}
-	if os.IsNotExist(err) {
-		return false
-	}
-	return false
+	return err == nil
 }
 func CreateDirToPath(p string) {
 	path := GeneratePath(p)
