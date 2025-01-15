@@ -26,15 +26,23 @@ func GeneratePath(p string) string {
 // OpenFile - Open / Create file
 // p - path to file
 func OpenFile(p string) *os.File {
-	// Открываем файл для записи (или создаем новый, если его нет) и добавляем данные в конец
-	f, err := os.OpenFile(GeneratePath(p), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
-	if err != nil {
-		log.Fatalf("Не удалось открыть файл: %v", err)
+	path := GeneratePath(p)
+
+	if !Exists(path) {
+		// Открываем файл для записи (или создаем новый, если его нет) и добавляем данные в конец
+		f, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+		if err != nil {
+			log.Fatalf("Cannot open file %s: %v", path, err)
+		}
+
+		fmt.Println("Create file to path:", path)
+
+		return f
+	} else {
+		fmt.Println("File exist to path:", path)
+		return nil
 	}
 
-	fmt.Println("Create file to path:", GeneratePath(p))
-
-	return f
 }
 func CloseFile(f *os.File) {
 	err := f.Close()
@@ -44,12 +52,14 @@ func CloseFile(f *os.File) {
 	}
 }
 func WriteString(t string, f *os.File) {
-	_, err := f.WriteString(t)
-	if err != nil {
-		log.Fatalf("Cannot write t in file %s: %v", f.Name(), err)
-	}
+	if f != nil {
+		_, err := f.WriteString(t)
+		if err != nil {
+			log.Fatalf("Cannot write t in file %s: %v", f.Name(), err)
+		}
 
-	CloseFile(f)
+		CloseFile(f)
+	}
 }
 
 // Exists returns whether the given file or directory exists
@@ -64,14 +74,16 @@ func Exists(path string) bool {
 	return false
 }
 func CreateDirToPath(p string) {
-	if !Exists(p) {
-		err := os.Mkdir(GeneratePath(p), 0777)
+	path := GeneratePath(p)
+
+	if !Exists(path) {
+		err := os.Mkdir(path, 0777)
 		if err != nil {
-			panic(err)
+			log.Fatalf("Error create dir to path %s: %v", path, err)
 		}
 
-		fmt.Println("Create dir to path:", GeneratePath(p))
+		fmt.Println("Create dir to path:", path)
 	} else {
-		fmt.Println("Dir exist to path:", GeneratePath(p))
+		fmt.Println("Dir exist to path:", path)
 	}
 }
