@@ -20,7 +20,7 @@ func InitialEnvParams() {
 func GetEnvParam(key string) string {
 	param := os.Getenv(key)
 
-	if key != "APP_DB_PASSWORD" && param == "" {
+	if param == "" {
 		log.Fatalf("Missing required environment variable: %s!", key)
 	}
 
