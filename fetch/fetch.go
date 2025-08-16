@@ -23,7 +23,7 @@ func Get(u string, h []Headers) []byte {
 		fmt.Printf("Error new request for url %s: %v", u, err)
 	}
 
-	for i := 0; i < len(h); i++ {
+	for i := range h {
 		req.Header.Set(h[i].Key, h[i].Value)
 	}
 
@@ -42,18 +42,34 @@ func Get(u string, h []Headers) []byte {
 
 	return b
 }
-func Post(u string, contentType string, body io.Reader) []byte {
-	resp, err := http.Post(u, contentType, body)
+func Post(u string, body io.Reader, h []Headers) []byte {
+	// Создание HTTP-клиента
+	client := &http.Client{}
+
+	// Формирование запроса
+	req, err := http.NewRequest("POST", u, body)
 
 	if err != nil {
+		fmt.Printf("Error new request for url %s: %v", u, err)
+	}
+
+	for i := range h {
+		req.Header.Set(h[i].Key, h[i].Value)
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	// Выполнение запроса
+	resp, err := client.Do(req)
+	if err != nil {
 		fmt.Println("Error in Post fetch:", err)
+		return nil
 	}
 
 	b, err := io.ReadAll(resp.Body)
 	resp.Body.Close()
-
 	if err != nil {
-		fmt.Printf("Error in v data (url: %s): %v\n\n", u, err)
+		fmt.Fprintf(os.Stderr, "fetch: reading %s: %v\n", u, err)
+		return nil
 	}
 
 	return b
