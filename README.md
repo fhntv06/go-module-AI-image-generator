@@ -27,3 +27,16 @@
 ├── internal/       # Внутренний код модуля
 │   └── api/        # Работа с api
 </code></pre>
+
+## Переменные окружения
+### Переменные для базы данных
+- APP_DB_HOST
+- APP_DB_PORT
+- APP_DB_USER
+- APP_DB_PASSWORD
+- APP_DB_DATABASE
+- DATABASE
+
+### Переменные API FUSIONBRAIN
+- APP_API_KEY_FUSIONBRAIN_PUBLIC
+- APP_API_KEY_FUSIONBRAIN_SECRET
